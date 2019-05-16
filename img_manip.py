@@ -58,15 +58,54 @@ def warp(image,inverse=False,src=None,dst=None):
         
     return warped
 
-def color_thresh(image,thresh=(0,255)):
+def hsv_thresh(image):
+    """
+    Performs a threshold on an image in the HSV colorspace
+    
+    Parameters:
+        image: image in RGB
+    Returns:
+        gray - gray image corresponding to the saturation channel
+        binary_thresh - binary image
+    """
+    
+    hsv = cv2.cvtColor(image,cv2.COLOR_RGB2HSV)
+    gray = hsv[:,:,1]
+    binary_thresh = np.zeros_like(gray)
+    binary_thresh[((gray>150)&(gray<230)&(hsv[:,:,2]>80)) | ((gray<25) & (hsv[:,:,2]>200))] = 1
+    
+    lum_add = np.zeros_like(gray)
+    lum_add[((gray<25) & (hsv[:,:,2]>200))] = 1
+    gray += 150*lum_add    
+    
+    return gray,binary_thresh
+
+def hls_thresh(image):
+    """
+    Performs a threshold on an image in the HLS colorspace
+    
+    Parameters:
+        image: image in RGB
+    Returns:
+        gray - gray image corresponding to the saturation channel
+        binary_thresh - binary image
+    """
+    
     hls = cv2.cvtColor(image,cv2.COLOR_RGB2HLS)
     gray = hls[:,:,2]
     binary_thresh = np.zeros_like(gray)
-    binary_thresh[((gray>120) & (hsv[:,:,1]>120)) | ((gray<40) & (hsv[:,:,1]>120))] = 1
+    binary_thresh[((gray>150)&(gray<230)&(hls[:,:,1]>80)) | ((gray<50) & (hls[:,:,1]>200))] = 1
+    
+    lum_add = np.zeros_like(gray)
+    lum_add[((gray<50) & (hls[:,:,1]>200))] = 1
+    gray += 125*lum_add
     
     return gray,binary_thresh
 
 def sobelx_thresh(image,thresh=(0,255),ksize=5):
+    """
+    Performs sobel in x direction and thresh
+    """
     
     gradx = cv2.Sobel(image,cv2.CV_64F,1,0,ksize=ksize)
     gradx_abs = np.abs(gradx)
@@ -78,10 +117,13 @@ def sobelx_thresh(image,thresh=(0,255),ksize=5):
     return gradx, binary_thresh
 
 def sobely_thresh(image,thresh=(0,255),ksize=5):
+    """
+    Performs sobel in y direction and thresh
+    """
     
-    grady = cv2.Sobel(image,cv2.CV_64F,1,0,ksize=ksize)
-    grady_abs = np.abs(gradx)
-    grady_abs = np.uint8(255*gradx_abs/np.max(gradx_abs))
+    grady = cv2.Sobel(image,cv2.CV_64F,0,1,ksize=ksize)
+    grady_abs = np.abs(grady)
+    grady_abs = np.uint8(255*grady_abs/np.max(grady_abs))
     
     binary_thresh = np.zeros_like(grady_abs)
     binary_thresh[(grady_abs>=thresh[0]) & (grady_abs<=thresh[1])] = 1
@@ -89,6 +131,9 @@ def sobely_thresh(image,thresh=(0,255),ksize=5):
     return grady, binary_thresh
 
 def sobelxy_thresh(gradx,grady,thresh=(0,255)):
+    """
+    Returns the magnitude of sobelx and sobely scaled for a peak of 255
+    """
     
     gradxy = np.sqrt(gradx**2 + grady**2)
     gradxy = np.uint8(255*gradxy/np.max(gradxy))
@@ -99,6 +144,9 @@ def sobelxy_thresh(gradx,grady,thresh=(0,255)):
     return gradxy,binary_thresh
 
 def sobeldir_thresh(gradx,grady,thresh=(0,255)):
+    """
+    Returns direction of gradient scaled from [0,255]
+    """
     
     graddir = np.arctan2(grady,gradx)
     graddir = np.uint8(255*graddir/np.max(graddir))
