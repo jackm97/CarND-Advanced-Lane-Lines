@@ -3,7 +3,7 @@ import numpy as np
 import cv2
 import glob
 
-def undistort(image):
+def get_calibration_matrix():
     """
     Parameter:
         image - image to be undistorted
@@ -29,9 +29,12 @@ def undistort(image):
             objpoints.append(objp)
             imgpoints.append(corners)
     
-    img_size = (image.shape[1],image.shape[0])
+    img_size = (1280,720)
     ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, img_size,None,None)
     
+    return mtx,dist
+
+def undistort(image,mtx,dist):
     undistorted_image = cv2.undistort(image,mtx,dist,None,mtx)
     
     return undistorted_image
@@ -49,58 +52,18 @@ def warp(image,inverse=False,src=None,dst=None):
         warped
     """
     
-    src = np.float32([[275,670],[1033,670],[573,465],[710,465]])
-    dst = np.float32([[380,720],[900,720],[380,0],[900,0]])
+    if src==None and dst==None:
+        src = np.float32([[275,700],[1033,700],[573,465],[710,465]])
+        dst = np.float32([[380,720],[900,720],[380,0],[900,0]])
     
     if inverse==False:
         M = cv2.getPerspectiveTransform(src, dst)
         warped = cv2.warpPerspective(image, M, (1280, 720))
+    else:
+        M = cv2.getPerspectiveTransform(dst, src)
+        warped = cv2.warpPerspective(image, M, (1280, 720))
         
     return warped
-
-def hsv_thresh(image):
-    """
-    Performs a threshold on an image in the HSV colorspace
-    
-    Parameters:
-        image: image in RGB
-    Returns:
-        gray - gray image corresponding to the saturation channel
-        binary_thresh - binary image
-    """
-    
-    hsv = cv2.cvtColor(image,cv2.COLOR_RGB2HSV)
-    gray = hsv[:,:,1]
-    binary_thresh = np.zeros_like(gray)
-    binary_thresh[((gray>150)&(gray<230)&(hsv[:,:,2]>80)) | ((gray<25) & (hsv[:,:,2]>200))] = 1
-    
-    lum_add = np.zeros_like(gray)
-    lum_add[((gray<25) & (hsv[:,:,2]>200))] = 1
-    gray += 150*lum_add    
-    
-    return gray,binary_thresh
-
-def hls_thresh(image):
-    """
-    Performs a threshold on an image in the HLS colorspace
-    
-    Parameters:
-        image: image in RGB
-    Returns:
-        gray - gray image corresponding to the saturation channel
-        binary_thresh - binary image
-    """
-    
-    hls = cv2.cvtColor(image,cv2.COLOR_RGB2HLS)
-    gray = hls[:,:,2]
-    binary_thresh = np.zeros_like(gray)
-    binary_thresh[((gray>150)&(gray<230)&(hls[:,:,1]>80)) | ((gray<50) & (hls[:,:,1]>200))] = 1
-    
-    lum_add = np.zeros_like(gray)
-    lum_add[((gray<50) & (hls[:,:,1]>200))] = 1
-    gray += 125*lum_add
-    
-    return gray,binary_thresh
 
 def sobelx_thresh(image,thresh=(0,255),ksize=5):
     """
@@ -111,10 +74,10 @@ def sobelx_thresh(image,thresh=(0,255),ksize=5):
     gradx_abs = np.abs(gradx)
     gradx_abs = np.uint8(255*gradx_abs/np.max(gradx_abs))
     
-    binary_thresh = np.zeros_like(gradx_abs)
+    binary_thresh = np.zeros_like(gradx)
     binary_thresh[(gradx_abs>=thresh[0]) & (gradx_abs<=thresh[1])] = 1
     
-    return gradx, binary_thresh
+    return gradx_abs, binary_thresh
 
 def sobely_thresh(image,thresh=(0,255),ksize=5):
     """
@@ -128,7 +91,7 @@ def sobely_thresh(image,thresh=(0,255),ksize=5):
     binary_thresh = np.zeros_like(grady_abs)
     binary_thresh[(grady_abs>=thresh[0]) & (grady_abs<=thresh[1])] = 1
     
-    return grady, binary_thresh
+    return grady_abs, binary_thresh
 
 def sobelxy_thresh(gradx,grady,thresh=(0,255)):
     """
@@ -156,9 +119,23 @@ def sobeldir_thresh(gradx,grady,thresh=(0,255)):
     
     return graddir, binary_thresh
 
-
+def get_warped_binary(image,mtx,dist):
+    dst = img_manip.undistort(image,mtx,dist)
     
+    hsv = cv2.cvtColor(dst, cv2.COLOR_BGR2HSV)
+    yellow_thresh = np.zeros_like(hsv[:,:,1])
+    yellow_thresh[((hsv[:,:,0] > 15) & (hsv[:,:,0] < 30)) & (hsv[:,:,1] > 100) & (hsv[:,:,2]>50)] = 1
     
-        
-        
-        
+    white_thresh = np.zeros_like(yellow_thresh)
+    white_thresh[(hsv[:,:,1] < 30) & (hsv[:,:,2]>200)] = 1
+    
+    color_thresh = (white_thresh + yellow_thresh).astype(np.uint8)
+    
+    hls = cv2.cvtColor(dst, cv2.COLOR_BGR2HLS)
+    gradx, gradx_thresh = img_manip.sobelx_thresh(hls[:,:,2],thresh=(30,120),ksize=9)
+    
+    binary = np.bitwise_or(color_thresh,gradx_thresh.astype(np.uint8))
+    
+    warped = img_manip.warp(binary)
+    
+    return warped
