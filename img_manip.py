@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 import numpy as np
 import cv2
 import glob
@@ -54,7 +53,7 @@ def warp(image,inverse=False,src=None,dst=None):
     
     if src==None and dst==None:
         src = np.float32([[275,700],[1033,700],[573,465],[710,465]])
-        dst = np.float32([[380,720],[900,720],[380,0],[900,0]])
+        dst = np.float32([[300,720],[980,720],[300,0],[980,0]])
     
     if inverse==False:
         M = cv2.getPerspectiveTransform(src, dst)
@@ -120,7 +119,7 @@ def sobeldir_thresh(gradx,grady,thresh=(0,255)):
     return graddir, binary_thresh
 
 def get_warped_binary(image,mtx,dist):
-    dst = img_manip.undistort(image,mtx,dist)
+    dst = undistort(image,mtx,dist)
     
     hsv = cv2.cvtColor(dst, cv2.COLOR_BGR2HSV)
     yellow_thresh = np.zeros_like(hsv[:,:,1])
@@ -132,10 +131,12 @@ def get_warped_binary(image,mtx,dist):
     color_thresh = (white_thresh + yellow_thresh).astype(np.uint8)
     
     hls = cv2.cvtColor(dst, cv2.COLOR_BGR2HLS)
-    gradx, gradx_thresh = img_manip.sobelx_thresh(hls[:,:,2],thresh=(30,120),ksize=9)
+    gradx, gradx_thresh = sobelx_thresh(hls[:,:,2],thresh=(30,120),ksize=9)
     
     binary = np.bitwise_or(color_thresh,gradx_thresh.astype(np.uint8))
     
-    warped = img_manip.warp(binary)
+    warped = warp(binary)
     
-    return warped
+    return warped, dst
+    
+    
