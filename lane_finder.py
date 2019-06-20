@@ -14,7 +14,6 @@ JACK MYERS 19 JUNE 2019
 """
 
 from moviepy.editor import VideoFileClip
-from IPython.display import HTML
 import img_manip
 import cv2
 import numpy as np
@@ -271,13 +270,13 @@ class lane_finder:
         left_fit = self.left_line.best_fit
         right_fit = self.right_line.best_fit
         my = 3.0/150
-        mx = 3.7/900
+        mx = 3.7/750
 
         A_left = mx/(my**2)*left_fit[0]
         B_left = mx/(my**2)*left_fit[1]
         A_right = mx/(my**2)*right_fit[0]
         B_right = mx/(my**2)*right_fit[1]
-        y = colored_lanes.shape[0]//2
+        y = colored_lanes.shape[0]
 
         left_curv = (1+(2*A_left*y+B_left)**2)**1.5/np.abs(2*A_left)
         right_curv = (1+(2*A_right*y+B_right)**2)**1.5/np.abs(2*A_right)
@@ -290,9 +289,8 @@ class lane_finder:
         midpoint = colored_lanes.shape[1]//2
         leftx_base = leftx[-1]
         rightx_base = rightx[-1]
-        self.left_line.line_base_pos = mx*(leftx - midpoint)
-        self.right_line.line_base_pos = mx*(rightx - midpoint)
-
+        self.left_line.line_base_pos = mx*(leftx_base - midpoint)
+        self.right_line.line_base_pos = mx*(rightx_base - midpoint)
 
     def process_frame(self,image):
         
@@ -318,7 +316,7 @@ class lane_finder:
         font = cv2.FONT_HERSHEY_SIMPLEX
         cv2.putText(out_image,"left curvature: " + str(round(left_curv,3)) + "m",(10,50), font, 1,(255,255,255),2,cv2.LINE_AA)
         cv2.putText(out_image,"right curvature: " + str(round(right_curv,3)) + "m",(10,100), font, 1,(255,255,255),2,cv2.LINE_AA)
-        cv2.putText(out_image,"offset from center: " + str(round(scaled_offset[0],3)) + "m",(10,150), font, 1,(255,255,255),2,cv2.LINE_AA)
+        cv2.putText(out_image,"offset from center: " + str(round(scaled_offset,3)) + "m",(10,150), font, 1,(255,255,255),2,cv2.LINE_AA)
 
         return out_image
     
