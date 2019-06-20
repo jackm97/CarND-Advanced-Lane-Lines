@@ -196,6 +196,15 @@ Finally the overlay is unwarped and overlayed with the original image. An exampl
 
 #### 1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (wobbly lines are ok but no catastrophic failures that would cause the car to drive off the road!).
 
+An example usage of the video pipeline is in cell 7 of the Ipython notebook along with the resulting video.
+
+```python
+import lane_finder as lf
+output = 'test_videos_output/project_video.mp4'
+finder = lf.lane_finder()
+%time finder.process_video("project_video.mp4",output)
+```
+
 Here's a [link to my video result](./test_videos_output/project_video.mp4)
 
 ---
@@ -204,4 +213,4 @@ Here's a [link to my video result](./test_videos_output/project_video.mp4)
 
 #### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
-In order for my pipeline to work it needs to work in varying light and road conditions. For this I used the HSV and HLS colorspaces for thresholding. The `lane_finder` class handles the processing of videos which includes averaging over frames and checking for failed frames. Although this pipeline works on the project video, it doesn't work well with the challenge videos. Some steps to make it work on these include adaptive thresholding, less hardcoding, and a better method for handling failed frames. Essentially, the pipeline fails in extremely winding conditions and poor road conditions (i.e. black tar lines, sharp shadows, etc.)  
+In order for my pipeline to work it needs to work in varying light and road conditions. For this I used the HSV and HLS colorspaces for thresholding. The `lane_finder` class handles the processing of videos which includes averaging over frames and checking for failed frames. Although this pipeline works on the project video, it doesn't work well with the challenge videos. Some steps to make it more robust include adaptive thresholding, less hardcoding, and a better method for handling failed frames. Essentially, the pipeline fails in extremely winding conditions and poor road conditions (i.e. black tar lines, sharp shadows, etc.)  
