@@ -22,9 +22,9 @@ The goals / steps of this project are the following:
 [image1]: ./output_images/calibrate.jpg "Undistorted"
 [image2]: ./output_images/test5_calibrate.jpg "Road Transformed"
 [image3]: ./output_images/thresh.jpg "Binary Example"
-[image4]: ./output_image/warped_binary.jpg "Warp Example"
-[image5]: ./output_image/poly_fit.jpg "Fit Visual"
-[image6]: ./output_image/final.jpg "Output"
+[image4]: ./output_images/warped_binary.jpg "Warp Example"
+[image5]: ./output_images/poly_fit.jpg "Fit Visual"
+[image6]: ./output_images/final.jpg "Output"
 [video1]: ./test_videos_output/project_video.mp4 "Video"
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/571/view) Points
