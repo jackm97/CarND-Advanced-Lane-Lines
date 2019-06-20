@@ -1,3 +1,12 @@
+"""
+img_manip.py
+
+Contains image manipulation functions used by the lane_finder class in
+lane_finder.py to find the lane lines in footage
+
+JACK MYERS 19 June 2019
+"""
+
 import numpy as np
 import cv2
 import glob
@@ -78,47 +87,18 @@ def sobelx_thresh(image,thresh=(0,255),ksize=5):
     
     return gradx_abs, binary_thresh
 
-def sobely_thresh(image,thresh=(0,255),ksize=5):
-    """
-    Performs sobel in y direction and thresh
-    """
-    
-    grady = cv2.Sobel(image,cv2.CV_64F,0,1,ksize=ksize)
-    grady_abs = np.abs(grady)
-    grady_abs = np.uint8(255*grady_abs/np.max(grady_abs))
-    
-    binary_thresh = np.zeros_like(grady_abs)
-    binary_thresh[(grady_abs>=thresh[0]) & (grady_abs<=thresh[1])] = 1
-    
-    return grady_abs, binary_thresh
-
-def sobelxy_thresh(gradx,grady,thresh=(0,255)):
-    """
-    Returns the magnitude of sobelx and sobely scaled for a peak of 255
-    """
-    
-    gradxy = np.sqrt(gradx**2 + grady**2)
-    gradxy = np.uint8(255*gradxy/np.max(gradxy))
-    
-    binary_thresh = np.zeros_like(gradxy)
-    binary_thresh[(gradxy>=thresh[0]) & (gradxy<=thresh[1])] = 1
-    
-    return gradxy,binary_thresh
-
-def sobeldir_thresh(gradx,grady,thresh=(0,255)):
-    """
-    Returns direction of gradient scaled from [0,255]
-    """
-    
-    graddir = np.arctan2(grady,gradx)
-    graddir = np.uint8(255*graddir/np.max(graddir))
-    
-    binary_thresh = np.zeros_like(graddir)
-    binary_thresh[(graddir>=thresh[0]) & (graddir<=thresh[1])] = 1
-    
-    return graddir, binary_thresh
-
 def get_warped_binary(image,mtx,dist):
+    """
+    Gets top down warped binary of lane lines
+    
+    Paramaters:
+        image - image to be processed
+        mtx - calibration matrix to undistort image
+        dist - distortion coefficients to undistort image
+        
+    Returns:
+        warped - warped binary
+    """
     dst = undistort(image,mtx,dist)
     
     hsv = cv2.cvtColor(dst, cv2.COLOR_BGR2HSV)
