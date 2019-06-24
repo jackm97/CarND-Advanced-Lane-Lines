@@ -1,6 +1,4 @@
-## Writeup Template
-
-### You can use this file as a template for your writeup if you want to submit it as a markdown file, but feel free to use some other method and submit a pdf if you prefer.
+## Writeup
 
 ---
 
@@ -35,7 +33,7 @@ The goals / steps of this project are the following:
 
 ### Camera Calibration
 
-#### 1. Briefly state how you computed the camera matrix and distortion coefficients. Provide an example of a distortion corrected calibration image.
+#### 1. How I computed the camera matrix and distortion coefficients.
 
 The code for this step is located in lines 14 through 43 of the file called `img_manip.py` 
 ```python
@@ -79,12 +77,12 @@ I then used the output `objpoints` and `imgpoints` to compute the camera calibra
 
 ### Pipeline (single images)
 
-#### 1. Provide an example of a distortion-corrected image.
+#### 1. An example of a distortion-corrected image.
 
 Using the distortion matrix and distortion coeffecients from the calibration step and I apply the `cv2.undistort()`. An example result is shown below:
 ![alt text][image2]
 
-#### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
+#### 2. How I used color transforms and gradients to create a thresholded binary image
 
 I used a combination of color and gradient thresholds to generate a binary image (thresholding steps at lines 104 through 116 in `img_manip.py`):
 ```python    
@@ -106,7 +104,7 @@ Here's an example of my output for this step:
 
 ![alt text][image3]
 
-#### 3. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
+#### 3. How I peformed a perspective transform.
 
 The code for my perspective transform includes a function called `warp()`, which appears in lines 50 through 74 in the file `img_manip.py`.  The `warp()` function takes as inputs an image (`image`), (`inverse`) for handling whether or not we're warping or un warping the image, as well as source (`src`) and destination (`dst`) points.  I chose to hardcode the source and destination points.
 
@@ -142,7 +140,7 @@ I verified that my perspective transform was working as expected by drawing the 
 
 ![alt text][image4]
 
-#### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
+#### 4. How I identified lane line pixels and fit their positions to a polynomial.
 
 I found lane pixels using either the sliding histogram method or by searching around a pre-defined polynomial fit. The pre-defined polynomial fit is faster than the sliding historgram method and is used if, in the video pipeline, the previous frame found a reasonable polynomial fit for the lane lines. The code for this is found from lines 68 to 160 in `lane_finder.py`.
 
@@ -152,7 +150,7 @@ Lane lines and a polynomial are overlayed (code in `lane_finder.py` from lines 2
 
 ![alt text][image5]
 
-#### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
+#### 5. How I calculated the radius of curvature of the lane and the position of the car relative to the center of the lane.
 
 I did this in lines 269 through 264 in my code in `lane_finder.py`
 
@@ -185,7 +183,7 @@ I did this in lines 269 through 264 in my code in `lane_finder.py`
         self.right_line.line_base_pos = mx*(rightx_base - midpoint)
 ```
 
-#### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
+#### 6. An example of the final product.
 Finally the overlay is unwarped and overlayed with the original image. An example is shown below:
 
 ![alt text][image6]
@@ -194,9 +192,9 @@ Finally the overlay is unwarped and overlayed with the original image. An exampl
 
 ### Pipeline (video)
 
-#### 1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (wobbly lines are ok but no catastrophic failures that would cause the car to drive off the road!).
+#### 1. An example of the video pipeline.
 
-An example usage of the video pipeline is in cell 7 of the Ipython notebook along with the resulting video.
+An example usage of the video pipeline is in cell 7 of the [Ipython notebook](./"Advanced Lane Detection.ipynb") along with the resulting video.
 
 ```python
 import lane_finder as lf
