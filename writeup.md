@@ -194,7 +194,7 @@ Finally the overlay is unwarped and overlayed with the original image. An exampl
 
 #### 1. An example of the video pipeline.
 
-An example usage of the video pipeline is in cell 7 of the [Ipython notebook](./"Advanced Lane Detection.ipynb") along with the resulting video.
+An example usage of the video pipeline is in cell 7 of the [Ipython notebook] (./Advanced\ Lane\ Detection.ipynb) along with the resulting video.
 
 ```python
 import lane_finder as lf
